@@ -6,7 +6,7 @@ function moduleProject2() {
   function getTimeElapsed() { // To be used at end of game to get elapsed time
     let currentTime = new Date().getTime()
     return currentTime - startTime
-  }
+  };
 
   // Setting up the footer content
   let footer = document.querySelector('footer')
@@ -19,7 +19,7 @@ function moduleProject2() {
     right: 'ArrowRight',
     down: 'ArrowDown',
     left: 'ArrowLeft',
-  }
+  };
 
   // Helper function to grab all squares
   const getAllSquares = () => document.querySelectorAll('.square')
@@ -37,9 +37,13 @@ function moduleProject2() {
       row.appendChild(square)
       square.addEventListener('click', () => {
         // 👉 TASK 2 - Use a click handler to target a square 👈
-      })
-    }
-  }
+        if (!square.classList.contains('targeted')) {
+          document.querySelector('.targeted').classList.remove('targeted');
+          square.classList.add('targeted');
+        };
+      });
+    };
+  };
   document.querySelector('.row:nth-child(3)')
     .children[2].classList.add('targeted') // Initial square being targeted
 
@@ -50,10 +54,10 @@ function moduleProject2() {
       let randomInt = Math.floor(Math.random() * 25)
       if (!randomInts.includes(randomInt)) {
         randomInts.push(randomInt)
-      }
-    }
+      };
+    };
     return randomInts
-  }
+  };
   let allSquares = getAllSquares()
   generateRandomIntegers().forEach(randomInt => { // Puts live mosquitoes in 5 random squares
     let mosquito = document.createElement('img')
@@ -61,18 +65,68 @@ function moduleProject2() {
     mosquito.style.transform = `rotate(${Math.floor(Math.random() * 359)}deg) scale(${Math.random() * 0.4 + 0.8})`
     mosquito.dataset.status = 'alive'
     allSquares[randomInt].appendChild(mosquito)
-  })
+  });
 
   document.addEventListener('keydown', evt => {
     // 👉 TASK 3 - Use the arrow keys to highlight a new square 👈
+    let isUp = evt.key === keys.up;
+    let isDown = evt.key === keys.down;
+    let isRight = evt.key === keys.right;
+    let isLeft = evt.key === keys.left;
+    let isSpacebar = evt.key === keys.space
+
+    let targeted = document.querySelector('.targeted');
+
+    if (isUp) {
+      if (targeted.parentElement.previousElementSibling) {
+        let idx = Array.from(targeted.parentElement.children).indexOf(targeted);
+        targeted.classList.remove('targeted');
+        targeted.parentElement.previousElementSibling.children[idx].classList.add('targeted');
+      };
+    } else if (isDown) {
+      if (targeted.parentElement.nextElementSibling) {
+        let idx = Array.from(targeted.parentElement.children).indexOf(targeted);
+        targeted.classList.remove('targeted');
+        targeted.parentElement.nextElementSibling.children[idx].classList.add('targeted');
+      };
+    } else if (isLeft) {
+      if (targeted.previousElementSibling) {
+        targeted.classList.remove('targeted');
+        targeted.previousElementSibling.classList.add('targeted');
+      };
+    } else if (isRight) {
+      if (targeted.nextElementSibling) {
+        targeted.classList.remove('targeted');
+        targeted.nextElementSibling.classList.add('targeted');
+      };
+    }
 
     // 👉 TASK 4 - Use the space bar to exterminate a mosquito 👈
+    else if (isSpacebar) {
+      let mosquito = targeted.firstChild;
 
-    // 👉 TASK 5 - End the game 👈
-  })
+      if (mosquito && mosquito.dataset.status === 'alive') {
+        mosquito.dataset.status = 'dead';
+        mosquito.parentElement.style.backgroundColor = 'red';
+      };
+
+      // 👉 TASK 5 - End the game 👈
+      let liveMosquitoes = document.querySelectorAll("[data-status=alive]");
+      if (!liveMosquitoes.length) {
+        let elapsed = getTimeElapsed();
+        document.querySelector('p.info').textContent = `Extermination completed in ${elapsed / 1000} seconds`;
+
+        let restartBtn = document.createElement('button');
+        restartBtn.textContent = 'Restart';
+        restartBtn.addEventListener('click', () => {
+          location.reload();
+        });
+        document.querySelector('h2').insertAdjacentElement('beforeend', restartBtn);
+      };
+    };
+  });
   // 👆 WORK WORK ABOVE THIS LINE 👆
-}
-
+};
 // ❗ DO NOT MODIFY THE CODE BELOW
 // ❗ DO NOT MODIFY THE CODE BELOW
 // ❗ DO NOT MODIFY THE CODE BELOW
